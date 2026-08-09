@@ -1,0 +1,11 @@
+name = "doh-server-worker-private"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "node generate-blocklist.js"
+
+[vars]
+FILTER_LIST = { binding = "FILTER_LIST", type = "text_blob" }
+
+
