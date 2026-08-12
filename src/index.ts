@@ -1,6 +1,6 @@
 import { BLOCKLIST } from './constants';
 
-const UPSTREAM_DOH = process.env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
+const UPSTREAM_DOH = env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
 
 // --- LOGIC ---
 
