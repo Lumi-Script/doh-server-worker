@@ -111,20 +111,16 @@ export default {
       return handleDohRequest(request, buffer);
     }
 
+if (method === 'POST' && headers.get('content-type') === 'application/dns-message') {
+      const buffer = await request.arrayBuffer();
+      return handleDohRequest(request, buffer, env);
+    }
+
     if (method === 'GET') {
-      const { searchParams } = new URL(url);
-      const dnsParam = searchParams.get('dns');
-
-      if (!dnsParam) {
-        return new Response(JSON.stringify({ error: 'Missing dns parameter' }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-
+      // ...
       try {
         const buffer = base64UrlToBuffer(dnsParam);
-        return handleDohRequest(request, buffer.slice().buffer);
+        return handleDohRequest(request, buffer.slice().buffer, env); 
       } catch (e) {
         return new Response(JSON.stringify({ error: 'Invalid DNS parameter encoding' }), {
           status: 400,
