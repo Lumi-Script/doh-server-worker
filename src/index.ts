@@ -51,7 +51,7 @@ function base64UrlToBuffer(base64url: string): Uint8Array {
 
 // --- HANDLER ---
 
-async function handleDohRequest(request: Request, packetBuffer: ArrayBuffer) {
+async function handleDohRequest(request: Request, packetBuffer: ArrayBuffer, env: any) {
   const domain = extractDomainFromPacket(packetBuffer);
   const UPSTREAM_DOH = env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
   if (domain && isDomainBlocked(domain)) {
