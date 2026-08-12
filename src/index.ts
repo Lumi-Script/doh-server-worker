@@ -1,6 +1,5 @@
 import { BLOCKLIST } from './constants';
 
-const UPSTREAM_DOH = env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
 
 // --- LOGIC ---
 
@@ -54,7 +53,7 @@ function base64UrlToBuffer(base64url: string): Uint8Array {
 
 async function handleDohRequest(request: Request, packetBuffer: ArrayBuffer) {
   const domain = extractDomainFromPacket(packetBuffer);
-
+  const UPSTREAM_DOH = env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
   if (domain && isDomainBlocked(domain)) {
     console.log(`[DoH] BLOCKED: ${domain}`);
     return new Response(
