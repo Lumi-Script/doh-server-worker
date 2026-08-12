@@ -5,4 +5,6 @@
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Lumi-Script/doh-server-worker)
 
+Set build command to: node generate-blocklist.js
+
 Doesn't auto update filter list.
