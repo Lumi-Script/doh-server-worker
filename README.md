@@ -9,3 +9,5 @@
 Set build command to: node generate-blocklist.js
 
 Doesn't auto update filter list.
+
+Works with Cloudflare Zerotrust DoH upstream, set it in variable UPSTREAM_DOH. This allows for split DNS (ie local connection onsite, tunnel connection off site).
