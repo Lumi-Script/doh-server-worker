@@ -1,8 +1,6 @@
 import { BLOCKLIST } from './constants';
 
-
 // --- LOGIC ---
-
 function isDomainBlocked(fullDomain: string): boolean {
   if (!fullDomain) return false;
   const parts = fullDomain.toLowerCase().split('.');
@@ -37,23 +35,25 @@ function extractDomainFromPacket(buffer: ArrayBuffer): string | null {
 }
 
 function base64UrlToBuffer(base64url: string): Uint8Array {
-  const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-  const padLen = (4 - (base64.length % 4)) % 4;
-  const paddedBase64 = base64 + '='.repeat(padLen);
-  const binaryString = atob(paddedBase64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
+  let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4 !== 0) {
+    base64 += '=';
+  }
+
+  // Decode binary string
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
   return bytes;
 }
 
 // --- HANDLER ---
-
 async function handleDohRequest(request: Request, packetBuffer: ArrayBuffer, env: any) {
   const domain = extractDomainFromPacket(packetBuffer);
   const UPSTREAM_DOH = env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
+  
   if (domain && isDomainBlocked(domain)) {
     console.log(`[DoH] BLOCKED: ${domain}`);
     return new Response(
@@ -97,9 +97,8 @@ async function handleDohRequest(request: Request, packetBuffer: ArrayBuffer, env
 }
 
 // --- WORKER ---
-
 export default {
-  async fetch(request: Request, env: { FILTER_LIST: string }) {
+  async fetch(request: Request, env: any) {
     const { method, headers, url } = request;
 
     if (new URL(url).pathname !== '/dns-query') {
@@ -108,19 +107,28 @@ export default {
 
     if (method === 'POST' && headers.get('content-type') === 'application/dns-message') {
       const buffer = await request.arrayBuffer();
-      return handleDohRequest(request, buffer);
-    }
-
-if (method === 'POST' && headers.get('content-type') === 'application/dns-message') {
-      const buffer = await request.arrayBuffer();
-      return handleDohRequest(request, buffer, env);
+      // Added env parameter
+      return handleDohRequest(request, buffer, env); 
     }
 
     if (method === 'GET') {
-      // ...
+      const { searchParams } = new URL(url);
+      const dnsParam = searchParams.get('dns');
+
+      if (!dnsParam) {
+        return new Response(JSON.stringify({ error: 'Missing dns parameter' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
       try {
-        const buffer = base64UrlToBuffer(dnsParam);
-        return handleDohRequest(request, buffer.slice().buffer, env); 
+        const uint8Array = base64UrlToBuffer(dnsParam);
+        const arrayBuffer = uint8Array.buffer.slice(
+          uint8Array.byteOffset,
+          uint8Array.byteOffset + uint8Array.byteLength
+        );
+        return handleDohRequest(request, arrayBuffer, env);
       } catch (e) {
         return new Response(JSON.stringify({ error: 'Invalid DNS parameter encoding' }), {
           status: 400,
