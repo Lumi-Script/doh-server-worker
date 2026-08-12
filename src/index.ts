@@ -1,6 +1,6 @@
 import { BLOCKLIST } from './constants';
 
-const UPSTREAM_DOH = 'https://3p5on30wy7.cloudflare-gateway.com/dns-query';
+const UPSTREAM_DOH = process.env.UPSTREAM_DOH || 'https://one.one.one.one/dns-query';
 
 // --- LOGIC ---
 
