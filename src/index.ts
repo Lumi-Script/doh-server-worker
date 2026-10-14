@@ -134,6 +134,7 @@ async function handleDohRequest(request: Request, packetBuffer: ArrayBuffer, env
   const clientIP = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For');
   if (clientIP) {
     upstreamHeaders['X-Forwarded-For'] = clientIP;
+    upstreamHeaders['CF-Connecting-IP'] = clientIP;
   }
 
   const upstreamResponse = await fetch(UPSTREAM_DOH, {
